@@ -260,7 +260,7 @@ services:
   # LOCALSTACK 
   # ---------------------------------------------------------------------------
   localstack:
-    image: localstack/localstack:stable
+    image: localstack/localstack:4.12
     container_name: localstack
     # env_file:
     #   - .env
@@ -306,7 +306,7 @@ services:
   # ---------------------------------------------------------------------------
 
   postgresnyc:
-    image: postgres:latest
+    image: postgres:16
     environment:
       - POSTGRES_USER=${NYC_POSTGRES_USERNAME:-nycpostgres}
       - POSTGRES_PASSWORD=${NYC_POSTGRES_PASSWORD:-nycpostgres}
@@ -356,7 +356,7 @@ services:
     #   - app-network
 
   postgresmlflow:
-    image: postgres:latest
+    image: postgres:16
     environment:
       - POSTGRES_USER=$MLFLOW_POSTGRES_USER
       - POSTGRES_PASSWORD=$MLFLOW_POSTGRES_PASS
@@ -391,7 +391,7 @@ services:
   # ---------------------------------------------------------------------------
 
   postgresgrafana:
-    image: postgres:latest
+    image: postgres:16
     environment:
       - POSTGRES_USER=grafana
       - POSTGRES_PASSWORD=grafana
