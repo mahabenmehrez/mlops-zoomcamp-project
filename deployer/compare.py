@@ -63,20 +63,27 @@ _, p_global = mannwhitneyu(err_new, err_old, alternative="greater")
 print(f"Test global (candidat pire ?) p={p_global:.4f}")
 
 # test par zone : H1 = les erreurs du candidat sont plus grandes
-regressions, tested = [], 0
+results = []
 for z in sorted(set(zones)):
     m = zones == z
     if m.sum() < MIN_TRIPS:
         continue
-    tested += 1
     _, p = mannwhitneyu(err_new[m], err_old[m], alternative="greater")
-    if p < ALPHA:
-        regressions.append((z, int(m.sum()), err_old[m].mean(), err_new[m].mean(), p))
+    results.append((z, int(m.sum()), err_old[m].mean(), err_new[m].mean(), p))
+
+tested = len(results)
+alpha_corr = ALPHA / tested if tested else ALPHA
+strict = [r for r in results if r[4] < ALPHA]
+corrected = [r for r in results if r[4] < alpha_corr]
 
 print(f"\nZones testées : {tested} (au moins {MIN_TRIPS} trajets chacune)")
-print(f"Zones en régression : {len(regressions)}")
-for z, n, a, b, p in regressions:
+print(f"Seuil strict = {ALPHA} | seuil corrigé (Bonferroni) = {alpha_corr:.4f}")
+print(f"Zones en régression (règle stricte)  : {len(strict)}")
+for z, n, a, b, p in strict:
     print(f"  {z}: n={n} MAE {a:.2f} -> {b:.2f} (p={p:.4f})")
+print(f"Zones en régression (règle corrigée) : {len(corrected)}")
 
-blocked = p_global < ALPHA or len(regressions) > 0
-print("\nDECISION :", "BLOQUER la promotion" if blocked else "Promotion autorisée (niveau 3 : demander à un humain)")
+block_strict = p_global < ALPHA or len(strict) > 0
+block_corr = p_global < ALPHA or len(corrected) > 0
+print("\nDECISION stricte  :", "BLOQUER" if block_strict else "autoriser (niveau 3 : demander à un humain)")
+print("DECISION corrigée :", "BLOQUER" if block_corr else "autoriser (niveau 3 : demander à un humain)")
